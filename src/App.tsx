@@ -1,10 +1,10 @@
+import React from 'react';
+
 export default function App() {
-  return (
-    <div>
-      <h1>🎯 Lifestyle Goals Planner</h1>
-      <h2>✅ App is Working!</h2>
-      <p>Your personal life operating system</p>
-      <p>Full application features coming soon...</p>
-    </div>
+  return React.createElement('div', null,
+    React.createElement('h1', null, '🎯 Lifestyle Goals Planner'),
+    React.createElement('h2', null, '✅ App is Working!'),
+    React.createElement('p', null, 'Your personal life operating system'),
+    React.createElement('p', null, 'Full application features coming soon...')
   );
 }
