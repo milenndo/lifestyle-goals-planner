@@ -16,9 +16,16 @@ function App() {
   const [goals, setGoals] = useState<Goal[]>([]);
   const [dailyFocus, setDailyFocus] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState('goals');
-  const [formData, setFormData] = useState({ title: '', description: '', category: 'health', target: 100, progress: 0, dueDate: '' });
+  const [formData, setFormData] = useState({
+    title: '',
+    description: '',
+    category: 'health',
+    target: 100,
+    progress: 0,
+    dueDate: ''
+  });
 
-  // Load from localStorage
+  // Load from localStorage on mount
   useEffect(() => {
     const saved = localStorage.getItem('goals');
     const savedFocus = localStorage.getItem('dailyFocus');
@@ -26,11 +33,12 @@ function App() {
     if (savedFocus) setDailyFocus(JSON.parse(savedFocus));
   }, []);
 
-  // Save to localStorage
+  // Save goals to localStorage
   useEffect(() => {
     localStorage.setItem('goals', JSON.stringify(goals));
   }, [goals]);
 
+  // Save daily focus to localStorage
   useEffect(() => {
     localStorage.setItem('dailyFocus', JSON.stringify(dailyFocus));
   }, [dailyFocus]);
@@ -43,7 +51,14 @@ function App() {
         createdAt: new Date().toISOString(),
       };
       setGoals([...goals, newGoal]);
-      setFormData({ title: '', description: '', category: 'health', target: 100, progress: 0, dueDate: '' });
+      setFormData({
+        title: '',
+        description: '',
+        category: 'health',
+        target: 100,
+        progress: 0,
+        dueDate: ''
+      });
     }
   };
 
@@ -53,7 +68,7 @@ function App() {
 
   const deleteGoal = (id: string) => {
     setGoals(goals.filter(g => g.id !== id));
-    setDailyFocus(dailyFocus.filter(id2 => id2 !== id));
+    setDailyFocus(dailyFocus.filter(focusId => focusId !== id));
   };
 
   const toggleDailyFocus = (goalId: string) => {
@@ -66,14 +81,18 @@ function App() {
 
   const getCategoryEmoji = (cat: string) => {
     const emojis: Record<string, string> = {
-      health: '🏃', fitness: '💪', career: '💼', learning: '📚', finance: '💰', personal: '🎯'
+      health: '🏃',
+      fitness: '💪',
+      career: '💼',
+      learning: '📚',
+      finance: '💰',
+      personal: '🎯'
     };
     return emojis[cat] || '📌';
   };
 
   const focusGoals = goals.filter(g => dailyFocus.includes(g.id));
   const availableGoals = goals.filter(g => !dailyFocus.includes(g.id));
-
   const stats = {
     total: goals.length,
     completed: goals.filter(g => g.target > 0 && (g.progress / g.target) >= 1).length,
@@ -88,9 +107,24 @@ function App() {
       </header>
 
       <nav className="nav">
-        <button className={`nav-btn ${activeTab === 'goals' ? 'active' : ''}`} onClick={() => setActiveTab('goals')}>📋 My Goals</button>
-        <button className={`nav-btn ${activeTab === 'daily' ? 'active' : ''}`} onClick={() => setActiveTab('daily')}>⭐ Daily Focus</button>
-        <button className={`nav-btn ${activeTab === 'progress' ? 'active' : ''}`} onClick={() => setActiveTab('progress')}>📊 Progress</button>
+        <button
+          className={`nav-btn ${activeTab === 'goals' ? 'active' : ''}`}
+          onClick={() => setActiveTab('goals')}
+        >
+          📋 My Goals
+        </button>
+        <button
+          className={`nav-btn ${activeTab === 'daily' ? 'active' : ''}`}
+          onClick={() => setActiveTab('daily')}
+        >
+          ⭐ Daily Focus
+        </button>
+        <button
+          className={`nav-btn ${activeTab === 'progress' ? 'active' : ''}`}
+          onClick={() => setActiveTab('progress')}
+        >
+          📊 Progress
+        </button>
       </nav>
 
       <main className="main">
@@ -98,9 +132,25 @@ function App() {
           <div className="tab-content">
             <div className="form-card">
               <h2>Add New Goal</h2>
-              <input type="text" placeholder="Goal title" value={formData.title} onChange={(e) => setFormData({...formData, title: e.target.value})} className="input" />
-              <textarea placeholder="Description" value={formData.description} onChange={(e) => setFormData({...formData, description: e.target.value})} className="input" rows={2}></textarea>
-              <select value={formData.category} onChange={(e) => setFormData({...formData, category: e.target.value})} className="input">
+              <input
+                type="text"
+                placeholder="Goal title"
+                value={formData.title}
+                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                className="input"
+              />
+              <textarea
+                placeholder="Description"
+                value={formData.description}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                className="input"
+                rows={2}
+              />
+              <select
+                value={formData.category}
+                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                className="input"
+              >
                 <option value="health">🏃 Health</option>
                 <option value="fitness">💪 Fitness</option>
                 <option value="career">💼 Career</option>
@@ -108,35 +158,52 @@ function App() {
                 <option value="finance">💰 Finance</option>
                 <option value="personal">🎯 Personal</option>
               </select>
-              <div className="row">
-                <input type="number" placeholder="Target" value={formData.target} onChange={(e) => setFormData({...formData, target: parseInt(e.target.value) || 0})} className="input" />
-                <input type="date" value={formData.dueDate} onChange={(e) => setFormData({...formData, dueDate: e.target.value})} className="input" />
-              </div>
+              <input
+                type="number"
+                placeholder="Target"
+                value={formData.target}
+                onChange={(e) => setFormData({ ...formData, target: parseInt(e.target.value) || 0 })}
+                className="input"
+              />
+              <input
+                type="date"
+                value={formData.dueDate}
+                onChange={(e) => setFormData({ ...formData, dueDate: e.target.value })}
+                className="input"
+              />
               <button onClick={addGoal} className="btn btn-primary">✅ Create Goal</button>
             </div>
 
             {goals.length === 0 ? (
-              <div className="empty">No goals yet. Create your first goal! 🚀</div>
+              <div className="empty-state">
+                <p>No goals yet. Create your first goal! 🚀</p>
+              </div>
             ) : (
               <div className="goals-grid">
                 {goals.map((goal) => {
                   const percent = goal.target > 0 ? (goal.progress / goal.target) * 100 : 0;
                   const isFocus = dailyFocus.includes(goal.id);
                   return (
-                    <div key={goal.id} className={`goal-card ${isFocus ? 'focus' : ''}`}>
+                    <div key={goal.id} className="goal-card">
                       <div className="goal-header">
-                        <div>
-                          <h3>{getCategoryEmoji(goal.category)} {goal.title}</h3>
-                          {goal.description && <p className="desc">{goal.description}</p>}
-                        </div>
-                        <button onClick={() => toggleDailyFocus(goal.id)} className="focus-btn">{isFocus ? '⭐' : '☆'}</button>
+                        <h3>{getCategoryEmoji(goal.category)} {goal.title}</h3>
+                        <button
+                          onClick={() => toggleDailyFocus(goal.id)}
+                          className="focus-btn"
+                          title={isFocus ? 'Remove from daily focus' : 'Add to daily focus'}
+                        >
+                          {isFocus ? '⭐' : '☆'}
+                        </button>
                       </div>
-                      {goal.dueDate && <p className="due">📅 {new Date(goal.dueDate).toLocaleDateString()}</p>}
-                      <div className="progress-bar"><div className="progress-fill" style={{width: `${Math.min(percent, 100)}%`}}></div></div>
+                      {goal.description && <p className="goal-desc">{goal.description}</p>}
+                      {goal.dueDate && <p className="goal-date">📅 {new Date(goal.dueDate).toLocaleDateString()}</p>}
+                      <div className="progress-bar">
+                        <div className="progress-fill" style={{ width: `${Math.min(percent, 100)}%` }}></div>
+                      </div>
                       <p className="progress-text">{goal.progress} / {goal.target} ({Math.round(percent)}%)</p>
                       <div className="goal-actions">
-                        <button onClick={() => updateGoal(goal.id, {progress: Math.max(0, goal.progress - 1)})} className="btn btn-sm">➖</button>
-                        <button onClick={() => updateGoal(goal.id, {progress: Math.min(goal.target, goal.progress + 1)})} className="btn btn-sm">➕</button>
+                        <button onClick={() => updateGoal(goal.id, { progress: Math.max(0, goal.progress - 1) })} className="btn btn-sm">➖</button>
+                        <button onClick={() => updateGoal(goal.id, { progress: Math.min(goal.target, goal.progress + 1) })} className="btn btn-sm">➕</button>
                         <button onClick={() => deleteGoal(goal.id)} className="btn btn-sm btn-danger">🗑️</button>
                       </div>
                     </div>
@@ -149,43 +216,48 @@ function App() {
 
         {activeTab === 'daily' && (
           <div className="tab-content">
-            <div className="card">
-              <h2>🌟 Today's Focus (up to 3 goals)</h2>
-              {focusGoals.length === 0 ? (
-                <p className="empty">No focus goals yet. Select up to 3 goals below!</p>
-              ) : (
-                <div className="focus-list">
-                  {focusGoals.map((goal, i) => (
-                    <div key={goal.id} className="focus-item">
-                      <div className="focus-num">{i + 1}</div>
-                      <div>
-                        <h4>{goal.title}</h4>
-                        {goal.description && <p>{goal.description}</p>}
-                      </div>
-                      <button onClick={() => toggleDailyFocus(goal.id)} className="btn btn-sm">✕</button>
+            <h2>🌟 Today's Focus (up to 3 goals)</h2>
+            {focusGoals.length === 0 ? (
+              <p className="empty-state">No focus goals yet. Select up to 3 goals below!</p>
+            ) : (
+              <div className="focus-goals">
+                {focusGoals.map((goal, i) => (
+                  <div key={goal.id} className="focus-card">
+                    <div className="focus-number">{i + 1}</div>
+                    <div className="focus-content">
+                      <h4>{goal.title}</h4>
+                      {goal.description && <p>{goal.description}</p>}
                     </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
+                    <button
+                      onClick={() => toggleDailyFocus(goal.id)}
+                      className="btn btn-sm"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
             {availableGoals.length > 0 && (
-              <div className="card">
+              <div className="available-goals">
                 <h3>📁 Available Goals</h3>
-                <div className="available-list">
-                  {availableGoals.map(goal => {
-                    const percent = goal.target > 0 ? (goal.progress / goal.target) * 100 : 0;
-                    return (
-                      <div key={goal.id} className="available-item">
-                        <div>
-                          <strong>{getCategoryEmoji(goal.category)} {goal.title}</strong>
-                          <p>{goal.progress}/{goal.target} • {Math.round(percent)}%</p>
-                        </div>
-                        <button onClick={() => toggleDailyFocus(goal.id)} className="btn btn-sm">Add</button>
+                {availableGoals.map(goal => {
+                  const percent = goal.target > 0 ? (goal.progress / goal.target) * 100 : 0;
+                  return (
+                    <div key={goal.id} className="available-item">
+                      <div>
+                        <strong>{getCategoryEmoji(goal.category)} {goal.title}</strong>
+                        <p>{goal.progress}/{goal.target} • {Math.round(percent)}%</p>
                       </div>
-                    );
-                  })}
-                </div>
+                      <button
+                        onClick={() => toggleDailyFocus(goal.id)}
+                        className="btn btn-sm"
+                      >
+                        Add
+                      </button>
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>
@@ -193,36 +265,44 @@ function App() {
 
         {activeTab === 'progress' && (
           <div className="tab-content">
-            <div className="card">
-              <h2>📊 Overall Statistics</h2>
-              <div className="stats-grid">
-                <div className="stat-box"><h3>{stats.total}</h3><p>Total Goals</p></div>
-                <div className="stat-box"><h3>{stats.completed}</h3><p>Completed</p></div>
-                <div className="stat-box"><h3>{stats.avgProgress}%</h3><p>Avg Progress</p></div>
+            <h2>📊 Overall Statistics</h2>
+            <div className="stats-grid">
+              <div className="stat-card">
+                <h3>{stats.total}</h3>
+                <p>Total Goals</p>
               </div>
-              <div className="overall-progress">
-                <div className="progress-bar-large"><div className="progress-fill-large" style={{width: `${stats.avgProgress}%`}}></div></div>
-                <p>{stats.avgProgress}% Overall Progress</p>
+              <div className="stat-card">
+                <h3>{stats.completed}</h3>
+                <p>Completed</p>
+              </div>
+              <div className="stat-card">
+                <h3>{stats.avgProgress}%</h3>
+                <p>Avg Progress</p>
               </div>
             </div>
-
+            <div className="overall-progress">
+              <p>{stats.avgProgress}% Overall Progress</p>
+              <div className="progress-bar">
+                <div className="progress-fill" style={{ width: `${stats.avgProgress}%` }}></div>
+              </div>
+            </div>
             {goals.length > 0 && (
-              <div className="card">
+              <div className="recent-goals">
                 <h3>📈 Recent Goals</h3>
-                <div className="recent-list">
-                  {goals.slice(0, 5).reverse().map(goal => {
-                    const percent = goal.target > 0 ? (goal.progress / goal.target) * 100 : 0;
-                    return (
-                      <div key={goal.id} className="recent-item">
-                        <div>
-                          <strong>{goal.title}</strong>
-                          <small>{goal.category} • {goal.progress}/{goal.target}</small>
-                        </div>
-                        <span className={percent >= 100 ? 'status-done' : 'status-progress'}>{percent >= 100 ? '✅ Done' : `${Math.round(percent)}%`}</span>
+                {goals.slice(0, 5).reverse().map(goal => {
+                  const percent = goal.target > 0 ? (goal.progress / goal.target) * 100 : 0;
+                  return (
+                    <div key={goal.id} className="recent-item">
+                      <div>
+                        <strong>{goal.title}</strong>
+                        <p>{goal.category} • {goal.progress}/{goal.target}</p>
                       </div>
-                    );
-                  })}
-                </div>
+                      <span className={percent >= 100 ? 'status-done' : 'status-progress'}>
+                        {percent >= 100 ? '✅ Done' : `${Math.round(percent)}%`}
+                      </span>
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>
